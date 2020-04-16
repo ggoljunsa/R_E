@@ -1,24 +1,37 @@
 import threading
 import cv2
 import numpy as np
+import math
 
 time_count = 0
 posTot = [0, 0]
 posAvg = [0, 0]
 
 
+def velocityAvg(v):
+    return math.sqrt(v[0] ** 2 + v[1] ** 2)
+
+
+prevPos = [0, 0]
+nowPos = [0, 0]
+veloVec = [0, 0]
+
+
 def getvelocity():
-    prevPos = [0, 0]
-    nowPos = [0, 0]
-    veloVec = [0, 0]
-    if time_count < 1:
-        prevPos = posAvg
-    else:
-        nowPos = posAvg
-        for i in range(2):
-            veloVec[i] = abs(nowPos[i] - prevPos[i])
-        print(veloVec)
-        prevPos = nowPos
+    global veloVec
+    global nowPos
+    global prevPos
+    # print(posAvg)
+
+    for i in range(2):
+        prevPos[i] = nowPos[i]
+    for i in range(2):
+        nowPos[i] = posAvg[i]
+    for i in range(2):
+        veloVec[i] = nowPos[i] - prevPos[i]
+
+    print(veloVec)
+    print(velocityAvg(veloVec))
 
 
 def startTimer():
@@ -37,7 +50,7 @@ class cameraCV:
     global posTot
     global posAvg
 
-    def __init__(self, cam_w=640, cam_h=480):  # slef는 뭘까
+    def __init__(self, cam_w=640, cam_h=480):  # self는 뭘까
         self.cap = cv2.VideoCapture(1)
         # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, cam_w)
         # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_h)
