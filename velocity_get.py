@@ -3,18 +3,20 @@ import cv2
 import numpy as np
 import math
 
+# 속력 단위 pixel/meter
+time_delay = 0.5
+time_until = 10
 time_count = 0
 posTot = [0, 0]
 posAvg = [0, 0]
+prevPos = [0, 0]
+nowPos = [0, 0]
+veloVec = [0, 0]
 
 
 def velocityAvg(v):
     return math.sqrt(v[0] ** 2 + v[1] ** 2)
 
-
-prevPos = [0, 0]
-nowPos = [0, 0]
-veloVec = [0, 0]
 
 
 def getvelocity():
@@ -28,7 +30,7 @@ def getvelocity():
     for i in range(2):
         nowPos[i] = posAvg[i]
     for i in range(2):
-        veloVec[i] = nowPos[i] - prevPos[i]
+        veloVec[i] = (nowPos[i] - prevPos[i]) / time_delay
 
     print(veloVec)
     print(velocityAvg(veloVec))
@@ -36,12 +38,12 @@ def getvelocity():
 
 def startTimer():
     global time_count
-    time_count += 1
+    time_count += time_delay
     getvelocity()
-    timer = threading.Timer(1, startTimer)
+    timer = threading.Timer(time_delay, startTimer)
     timer.start()
 
-    if time_count > 10:
+    if time_count > time_until:
         print("stop")
         timer.cancel()
 
@@ -65,7 +67,7 @@ class cameraCV:
         self.lower_blue3 = np.array([95, 35, 35])
         self.upper_blue3 = np.array([105, 255, 255])
 
-    def asdf(self):
+    def capture(self):
         while True:
             ret, img_color = self.cap.read()
             org_height, org_width = img_color.shape[:2]
@@ -133,4 +135,4 @@ class cameraCV:
 
 startTimer()
 
-cameraCV().asdf()
+cameraCV().capture()
